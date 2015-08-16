@@ -3,6 +3,7 @@
     if (!layerids) {
         document.getElementById('map1').style.display = 'none';
         document.getElementById('map2').style.display = 'none';
+        document.getElementById('map3').style.display = 'none';
         document.getElementById('compare').onclick = function(e) {
             document.getElementById('compare').className = 'bold';
             document.getElementById('swipe').className = '';
@@ -32,13 +33,17 @@
         .setView([40, -74.50], 9);
     var map2 = L.mapbox.map('map2', null)
         .setView([40, -74.50], 9);
+    var map3 = L.mapbox.map('map3', null)
+        .setView([40, -74.50], 9);
     addLayer(layerids[0], map1);
     addLayer(layerids[1], map2);
+    addLayer(layerids[2], map3);
     L.hash(map1);
 
     // when either map finishes moving, trigger an update on the other one.
     map1.on('moveend', follow).on('zoomend', follow);
     map2.on('moveend', follow).on('zoomend', follow);
+    map3.on('moveend', follow).on('zoomend', follow);
 
     // quiet is a cheap and dirty way of avoiding a problem in which one map
     // syncing to another leads to the other map syncing to it, and so on
@@ -48,8 +53,18 @@
     function follow(e) {
         if (quiet) return;
         quiet = true;
-        if (e.target === map1) sync(map2, e);
-        if (e.target === map2) sync(map1, e);
+        if (e.target === map1) {
+            sync(map2, e);
+            sync(map3, e);
+        }
+        if (e.target === map2) {
+            sync(map1, e);
+            sync(map3, e);
+        }
+        if (e.target === map3) {
+            sync(map1, e);
+            sync(map2, e);
+        }
         quiet = false;
     }
 
